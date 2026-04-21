@@ -3,86 +3,134 @@
 <head>
   <meta charset="UTF-8">
   <title>Profile | PYQ Hub</title>
-  <link rel="stylesheet" href="/css/style.css">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="/css/style.css" />
 </head>
 
-<body>
+<body class="bg-gray-100 flex flex-col min-h-screen">
 
 <%- include("partials/navbar") %>
 
-<section class="profile-header">
-  <h1>Welcome, <%= user.username %> </h1>
-  <p>Your Role: <strong><%= user.role.toUpperCase() %></strong></p>
-</section>
+<div class="flex-1 p-6">
+  <div class="flex gap-8 items-start">
 
-<main class="dashboard">
+  <!-- 🔥 LEFT SIDEBAR -->
+  <div class="w-80 bg-white rounded-2xl p-6 shadow-md">
 
-  
-  <% if (user.role === "admin" || user.role === "professor") { %>
+    <!-- AVATAR WITH UPLOAD -->
+    <div class="relative w-28 h-28 mx-auto group">
 
-  <section class="upload-section">
-    <h2> Upload New Paper</h2>
+      <img src="<%= user.avatar || '/images/default.png' %>"
+           class="w-28 h-28 rounded-full object-cover border-4 border-blue-500 shadow">
 
-    <form action="/upload" method="POST" enctype="multipart/form-data" class="upload-form">
-      <input type="text" name="title" placeholder="Paper Title" required>
-      <input type="text" name="subject" placeholder="Subject" required>
-      <input type="number" name="year" placeholder="Year" required>
-      <input type="text" name="examType" placeholder="Exam Type" required>
-      <input type="file" name="file" required>
-      <button type="submit" class="btn btn-primary">Upload</button>
-    </form>
-  </section>
+      <!-- OVERLAY -->
+      <form action="/upload-avatar" method="POST" enctype="multipart/form-data"
+            class="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center 
+                   opacity-0 group-hover:opacity-100 transition">
 
-  <% } %>
+        <input type="file" name="avatar" accept="image/*"
+               onchange="this.form.submit()"
+               class="absolute inset-0 opacity-0 cursor-pointer">
 
-  
-  <section class="uploaded-section">
-    <h2> Your Uploaded Papers</h2>
+        <span class="text-white text-xs">Change</span>
+      </form>
+    </div>
 
-    <% if (userFiles && userFiles.length > 0) { %>
+    <!-- USER INFO -->
+    <div class="text-center mt-4">
+      <h2 class="text-xl font-bold"><%= user.username %></h2>
 
-      <div class="uploads-grid">
+      <p class="text-sm font-semibold uppercase mt-1
+        <%= user.role === 'admin' ? 'text-red-500' :
+            user.role === 'professor' ? 'text-purple-500' :
+            'text-blue-600' %>">
+        <%= user.role %>
+      </p>
 
-        <% userFiles.forEach(function(file) { %>
+      <p class="text-gray-500 text-sm"><%= user.email || "No email" %></p>
+    </div>
 
-          <div class="upload-card">
+    <!-- STATS -->
+    <div class="mt-6 grid grid-cols-2 gap-4">
+      <div class="bg-gray-100 p-4 rounded-xl text-center">
+        <h2 class="text-blue-600 font-bold text-lg"><%= papers.length %></h2>
+        <p class="text-xs text-gray-500">Uploads</p>
+      </div>
 
-            <div class="card-top">
-              <h3><%= file.title %></h3>
-              <span class="exam-badge"><%= file.examType %></span>
-            </div>
+      <div class="bg-gray-100 p-4 rounded-xl text-center">
+        <h2 class="text-blue-600 font-bold text-lg">
+          <%= papers.reduce((acc, p) => acc + (p.downloads || 0), 0) %>
+        </h2>
+        <p class="text-xs text-gray-500">Downloads</p>
+      </div>
+    </div>
 
-            <div class="card-meta">
-              <p><strong>Subject:</strong> <%= file.subject %></p>
-              <p><strong>Year:</strong> <%= file.year %></p>
-            </div>
+    <!-- BUTTON -->
+    <a href="/upload" 
+   class="block mt-6 bg-blue-600 text-white text-center py-2 rounded">
+   Upload Paper
+</a>
 
-            <div class="card-actions">
-              <a href="/download/<%= file._id %>" class="btn btn-outline">Download</a>
-              <a href="/delete/<%= file._id %>" class="btn btn-danger">Delete</a>
-            </div>
+  </div>
 
-            
-            <form action="/update/<%= file._id %>" method="POST" enctype="multipart/form-data" class="update-form">
-              <input type="file" name="file" required>
-              <button type="submit" class="btn btn-warning">Update</button>
-            </form>
+  <!-- 🔥 RIGHT SIDE -->
+  <div class="flex-1">
+
+    <!-- HEADER -->
+    <div class="mb-6">
+      <h1 class="text-2xl font-bold">My Uploaded Papers</h1>
+      <p class="text-gray-500 text-sm">Manage your uploaded resources</p>
+    </div>
+
+    <!-- GRID -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+
+      <% if(papers.length === 0){ %>
+
+        <div class="col-span-3 text-center p-12 bg-white rounded-xl shadow">
+          <p class="text-gray-500">No papers uploaded yet 📂</p>
+        </div>
+
+      <% } %>
+
+      <% papers.forEach(paper => { %>
+
+        <div class="bg-white p-5 rounded-xl shadow hover:shadow-lg transition">
+
+          <h3 class="font-semibold text-lg"><%= paper.title %></h3>
+          <p class="text-sm text-gray-500"><%= paper.subject %></p>
+
+          <div class="mt-3 flex justify-between text-xs text-gray-400">
+            <span><%= paper.examType %></span>
+            <span><%= paper.year %></span>
+          </div>
+
+          <!-- ACTIONS -->
+          <div class="mt-4 flex justify-between items-center">
+
+            <a href="/uploads/<%= paper.filename %>"
+               target="_blank"
+               class="text-green-600 text-sm font-medium hover:underline">
+                View
+            </a>
+
+            <a href="/download/<%= paper._id %>"
+               class="text-blue-600 text-sm font-medium hover:underline">
+                Download
+            </a>
 
           </div>
 
-        <% }); %>
+        </div>
 
-      </div>
+      <% }) %>
 
-    <% } else { %>
+    </div>
 
-      <p class="no-data">You haven’t uploaded any papers yet.</p>
+  </div>
 
-    <% } %>
-
-  </section>
-
-</main>
+</div>
 
 <%- include("partials/footer") %>
 

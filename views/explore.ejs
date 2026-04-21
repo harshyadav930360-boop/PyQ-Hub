@@ -59,7 +59,9 @@
               Delete
             </a>
           <% } else { %>
-            <span class="student-tag">View Only</span>
+            <a href="/uploads/<%= paper.filename %>" target="_blank" class="btn-view">
+              👁 View Only
+            </a>
           <% } %>
 
         </div>
