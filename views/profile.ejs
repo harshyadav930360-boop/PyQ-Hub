@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Profile | PYQ Hub</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+
+<%- include("partials/navbar") %>
+
+<section class="profile-header">
+  <h1>Welcome, <%= user.username %> </h1>
+  <p>Your Role: <strong><%= user.role.toUpperCase() %></strong></p>
+</section>
+
+<main class="dashboard">
+
+  
+  <% if (user.role === "admin" || user.role === "professor") { %>
+
+  <section class="upload-section">
+    <h2> Upload New Paper</h2>
+
+    <form action="/upload" method="POST" enctype="multipart/form-data" class="upload-form">
+      <input type="text" name="title" placeholder="Paper Title" required>
+      <input type="text" name="subject" placeholder="Subject" required>
+      <input type="number" name="year" placeholder="Year" required>
+      <input type="text" name="examType" placeholder="Exam Type" required>
+      <input type="file" name="file" required>
+      <button type="submit" class="btn btn-primary">Upload</button>
+    </form>
+  </section>
+
+  <% } %>
+
+  
+  <section class="uploaded-section">
+    <h2> Your Uploaded Papers</h2>
+
+    <% if (userFiles && userFiles.length > 0) { %>
+
+      <div class="uploads-grid">
+
+        <% userFiles.forEach(function(file) { %>
+
+          <div class="upload-card">
+
+            <div class="card-top">
+              <h3><%= file.title %></h3>
+              <span class="exam-badge"><%= file.examType %></span>
+            </div>
+
+            <div class="card-meta">
+              <p><strong>Subject:</strong> <%= file.subject %></p>
+              <p><strong>Year:</strong> <%= file.year %></p>
+            </div>
+
+            <div class="card-actions">
+              <a href="/download/<%= file._id %>" class="btn btn-outline">Download</a>
+              <a href="/delete/<%= file._id %>" class="btn btn-danger">Delete</a>
+            </div>
+
+            
+            <form action="/update/<%= file._id %>" method="POST" enctype="multipart/form-data" class="update-form">
+              <input type="file" name="file" required>
+              <button type="submit" class="btn btn-warning">Update</button>
+            </form>
+
+          </div>
+
+        <% }); %>
+
+      </div>
+
+    <% } else { %>
+
+      <p class="no-data">You haven’t uploaded any papers yet.</p>
+
+    <% } %>
+
+  </section>
+
+</main>
+
+<%- include("partials/footer") %>
+
+</body>
+</html>

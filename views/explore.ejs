@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Explore Papers | PYQ Hub</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<%- include("partials/navbar") %>
+
+<section class="explore-header">
+  <h1>Explore Question Papers</h1>
+  <p>Search, filter and download previous year papers easily</p>
+
+  <form action="/explore" method="GET" class="explore-search">
+    <input type="text" name="q" placeholder="Search by title or subject" value="<%= q || '' %>">
+
+    <select name="examType">
+      <option value="">All Exams</option>
+      <option value="JEE">JEE</option>
+      <option value="NEET">NEET</option>
+      <option value="GATE">GATE</option>
+      <option value="CAT">CAT</option>
+      <option value="Semester Exam">Semester Exam</option>
+    </select>
+
+    <input type="number" name="year" placeholder="Year">
+
+    <button class="btn btn-primary">Search</button>
+  </form>
+</section>
+
+<div class="explore-container">
+
+<% if (papers && papers.length > 0) { %>
+
+  <div class="explore-grid">
+
+    <% papers.forEach(paper => { %>
+
+      <div class="explore-card">
+
+        <h2><%= paper.title %></h2>
+
+        <p><strong>Exam:</strong> <%= paper.examType || "N/A" %></p>
+        <p><strong>Year:</strong> <%= paper.year || "N/A" %></p>
+        <p><strong>Subject:</strong> <%= paper.subject || "N/A" %></p>
+
+        <div class="explore-actions">
+
+          <a href="/download/<%= paper._id %>" class="btn btn-outline">
+            Download
+          </a>
+
+          <% if (user && user.role === "admin") { %>
+            <a href="/delete/<%= paper._id %>" class="btn btn-danger">
+              Delete
+            </a>
+          <% } else { %>
+            <span class="student-tag">View Only</span>
+          <% } %>
+
+        </div>
+
+      </div>
+
+    <% }) %>
+
+  </div>
+
+<% } else { %>
+
+  <p class="no-papers">No papers found </p>
+
+<% } %>
+
+</div>
+
+</body>
+</html>

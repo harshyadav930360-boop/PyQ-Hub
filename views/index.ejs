@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PYQ Hub | Home</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  
+  <%- include("partials/navbar") %>
+
+  
+  <header class="hero">
+    <div class="container hero-inner">
+      <div class="hero-text">
+        <h1>Access & Share Question Papers Easily</h1>
+        <p class="lead">
+          Find, download and contribute previous year question papers — curated by students for students.
+          Save time, prepare smart, and collaborate with your peers.
+        </p>
+        <div class="hero-ctas">
+          <a class="btn btn-primary" href="/explore">Start Exploring →</a>
+         
+        </div>
+      </div>
+
+      <div class="hero-visual" aria-hidden="true">
+        
+        <div class="card-stack">
+          <div class="card card-1"></div>
+          <div class="card card-2"></div>
+          <div class="card card-3"></div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  
+  <section class="section why">
+    <div class="container">
+      <h2 class="section-title">Why Use PYQ Hub?</h2>
+
+      <div class="grid cols-3 features">
+        <article class="feature">
+          <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="" class="feature-icon">
+          <h3>Easy Uploads</h3>
+          <p>Upload papers in seconds. Help others by sharing resources you used to study.</p>
+        </article>
+
+        <article class="feature">
+          <img src="https://cdn-icons-png.flaticon.com/512/1048/1048953.png" alt="" class="feature-icon">
+          <h3>Quick Search</h3>
+          <p>Find papers by subject, year or exam type — results load fast and stay relevant.</p>
+        </article>
+
+        <article class="feature">
+          <img src="https://cdn-icons-png.flaticon.com/512/709/709496.png" alt="" class="feature-icon">
+          <h3>Student Community</h3>
+          <p>Build a repository together — discover what others uploaded and contribute your best materials.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  
+  <section class="section how">
+    <div class="container">
+      <h2 class="section-title">How It Works</h2>
+
+      <div class="grid cols-3 steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <h4>Create an account</h4>
+          <p>Sign up quickly with a username and password to start uploading materials.</p>
+        </div>
+
+        <div class="step">
+          <div class="step-num">2</div>
+          <h4>Explore & Download</h4>
+          <p>Browse community uploads and download papers you need for study or revision.</p>
+        </div>
+
+        <div class="step">
+          <div class="step-num">3</div>
+          <h4>Share & Manage</h4>
+          <p>Upload your own papers and manage them from your dashboard anytime.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-col">
+        <h3>PYQ Hub</h3>
+        <p class="muted">Open platform for sharing previous year question papers. Built for students, by students.</p>
+      </div>
+
+      <div class="footer-col">
+        <h4>Quick links</h4>
+        <ul class="footer-links">
+          <li><a href="/">Home</a></li>
+          <li><a href="/explore">Explore</a></li>
+          <li><a href="/register">Sign Up</a></li>
+          <li><a href="/login">Login</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h4>Contact</h4>
+        <p class="muted">support@pyqhub.com</p>
+        <p><a class="footer-help" href="/help">Help center</a></p>
+      </div>
+    </div>
+
+    <div class="footer-bottom">
+      <div class="container">
+        <small>© <%= new Date().getFullYear() %> PYQ Hub · All rights reserved</small>
+      </div>
+    </div>
+  </footer>
+
+</body>
+</html>

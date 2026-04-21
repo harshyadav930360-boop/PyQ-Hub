@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<%- include("partials/navbar") %>
+
+<div class="admin-container">
+
+  <h1 style="text-align:center; margin-bottom:20px;">
+    Admin Dashboard
+  </h1>
+
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <h2><%= total %></h2>
+      <p>Total Papers</p>
+    </div>
+
+    <div class="stat-card">
+      <h2><%= pending %></h2>
+      <p>Pending Approval</p>
+    </div>
+
+    <div class="stat-card">
+      <h2><%= approved %></h2>
+      <p>Approved Papers</p>
+    </div>
+  </div>
+
+  <!-- Papers -->
+  <div class="explore-grid">
+
+    <% files.forEach(file => { %>
+
+      <div class="explore-card">
+
+        <h3><%= file.title %></h3>
+
+        <p><strong>Subject:</strong> <%= file.subject %></p>
+        <p><strong>Year:</strong> <%= file.year %></p>
+
+        <!-- STATUS BADGE -->
+        <p>
+          <% if (file.status === "pending") { %>
+            <span class="badge badge-pending">Pending</span>
+          <% } else { %>
+            <span class="badge badge-approved">Approved</span>
+          <% } %>
+        </p>
+
+        <!-- ACTIONS -->
+        <% if (file.status === "pending") { %>
+          <form action="/admin/approve/<%= file._id %>" method="POST">
+            <button class="btn btn-primary w-full">Approve</button>
+          </form>
+        <% } %>
+
+        <form action="/admin/delete/<%= file._id %>" method="POST">
+          <button class="btn btn-danger w-full">Delete</button>
+        </form>
+
+      </div>
+
+    <% }) %>
+
+  </div>
+
+</div>
+
+</body>
+</html>
