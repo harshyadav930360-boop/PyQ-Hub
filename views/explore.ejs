@@ -2,83 +2,99 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Explore Papers | PYQ Hub</title>
+  <title>Explore | PYQ Hub</title>
+
+  <!-- Tailwind for layout -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Your CSS -->
   <link rel="stylesheet" href="/css/style.css">
 </head>
-<body>
+
+<body class="bg-gray-100">
 
 <%- include("partials/navbar") %>
 
-<section class="explore-header">
-  <h1>Explore Question Papers</h1>
-  <p>Search, filter and download previous year papers easily</p>
-
-  <form action="/explore" method="GET" class="explore-search">
-    <input type="text" name="q" placeholder="Search by title or subject" value="<%= q || '' %>">
-
-    <select name="examType">
-      <option value="">All Exams</option>
-      <option value="JEE">JEE</option>
-      <option value="NEET">NEET</option>
-      <option value="GATE">GATE</option>
-      <option value="CAT">CAT</option>
-      <option value="Semester Exam">Semester Exam</option>
-    </select>
-
-    <input type="number" name="year" placeholder="Year">
-
-    <button class="btn btn-primary">Search</button>
-  </form>
+<!-- HEADER -->
+<section class="text-center mt-10">
+  <h1 class="text-4xl font-bold text-blue-600">
+    Explore Question Papers
+  </h1>
+  <p class="text-gray-500 mt-2">
+    Search, filter and download previous year papers easily
+  </p>
 </section>
 
-<div class="explore-container">
+<!-- SEARCH BAR -->
+<form action="/explore" method="GET" 
+      class="max-w-5xl mx-auto mt-8 flex flex-wrap items-center justify-center gap-3">
 
-<% if (papers && papers.length > 0) { %>
+  <!-- SEARCH INPUT -->
+  <input type="text" name="q"
+    placeholder="Search by title or subject"
+    value="<%= typeof q !== 'undefined' ? q : '' %>"
+    class="px-4 py-2 border rounded-lg w-64">
 
-  <div class="explore-grid">
+  <!-- EXAM FILTER -->
+  <select name="examType" class="px-4 py-2 border rounded-lg">
+    <option value="">All Exams</option>
+    <option value="JEE">JEE</option>
+    <option value="NEET">NEET</option>
+    <option value="GATE">GATE</option>
+    <option value="CAT">CAT</option>
+    <option value="Semester">Semester Exam</option>
+  </select>
 
-    <% papers.forEach(paper => { %>
+  <!-- YEAR -->
+  <input type="number" name="year" placeholder="Year"
+    class="px-4 py-2 border rounded-lg w-32">
 
-      <div class="explore-card">
+  <!-- BUTTON -->
+  <button type="submit"
+    class="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700">
+    Search
+  </button>
 
-        <h2><%= paper.title %></h2>
+</form>
 
-        <p><strong>Exam:</strong> <%= paper.examType || "N/A" %></p>
-        <p><strong>Year:</strong> <%= paper.year || "N/A" %></p>
-        <p><strong>Subject:</strong> <%= paper.subject || "N/A" %></p>
+<!-- RESULTS -->
+<div class="max-w-6xl mx-auto mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-        <div class="explore-actions">
+  <% if(papers.length === 0){ %>
 
-          <a href="/download/<%= paper._id %>" class="btn btn-outline">
-            Download
-          </a>
+    <div class="col-span-3 text-center text-gray-500">
+      No papers found 📂
+    </div>
 
-          <% if (user && user.role === "admin") { %>
-            <a href="/delete/<%= paper._id %>" class="btn btn-danger">
-              Delete
-            </a>
-          <% } else { %>
-            <a href="/uploads/<%= paper.filename %>" target="_blank" class="btn-view">
-              👁 View Only
-            </a>
-          <% } %>
+  <% } %>
 
-        </div>
+  <% papers.forEach(paper => { %>
 
+    <div class="bg-white p-5 rounded-xl shadow hover:shadow-lg transition">
+
+      <h3 class="font-semibold text-lg"><%= paper.title %></h3>
+      <p class="text-sm text-gray-500"><%= paper.subject %></p>
+
+      <div class="mt-2 text-xs text-gray-400 flex justify-between">
+        <span><%= paper.examType %></span>
+        <span><%= paper.year %></span>
       </div>
 
-    <% }) %>
+      <div class="mt-4 flex justify-between">
+        <a href="/uploads/<%= paper.filename %>" target="_blank"
+           class="text-green-600 text-sm">View</a>
 
-  </div>
+        <a href="/download/<%= paper._id %>"
+           class="text-blue-600 text-sm">Download</a>
+      </div>
 
-<% } else { %>
+    </div>
 
-  <p class="no-papers">No papers found </p>
-
-<% } %>
+  <% }) %>
 
 </div>
+
+<%- include("partials/footer") %>
 
 </body>
 </html>

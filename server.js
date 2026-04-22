@@ -14,55 +14,67 @@ const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const User = require("./models/user");
 const File = require("./models/file");
 
+const ADMIN_KEY = "ADMIN123";
+const PROFESSOR_KEY = "PROF456";
+
 const app = express();
 
 // ================== CONFIG ==================
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
+app.use("/uploads", express.static("uploads"));
 
 // ================== DB ==================
-mongoose.connect("mongodb://127.0.0.1:27017/pyqhub")
+mongoose
+  .connect("mongodb://127.0.0.1:27017/pyqhub")
   .then(() => console.log("MongoDB connected"))
-  .catch(err => console.error(err));
+  .catch((err) => console.error(err));
 
 // ================== SESSION ==================
-app.use(session({
-  secret: "supersecretkey",
-  resave: false,
-  saveUninitialized: false,
-  store: MongoStore.create({
-    mongoUrl: "mongodb://127.0.0.1:27017/pyqhub"
+app.use(
+  session({
+    secret: "supersecretkey",
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({
+      mongoUrl: "mongodb://127.0.0.1:27017/pyqhub",
+    }),
   })
-}));
+);
 
 // ================== PASSPORT ==================
 app.use(passport.initialize());
 app.use(passport.session());
 
-passport.use(new GoogleStrategy({
-    clientID: process.env.GOOGLE_CLIENT_ID,
-    clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-    callbackURL: "/auth/google/callback"
-  },
-  async (accessToken, refreshToken, profile, done) => {
-    const email = profile.emails[0].value;
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: "/auth/google/callback",
+    },
+    async (accessToken, refreshToken, profile, done) => {
+      const email = profile.emails[0].value;
+      const name = profile.displayName;
+      const avatar = profile.photos[0].value;
 
-    let user = await User.findOne({ email });
+      let user = await User.findOne({ email });
 
-    if (!user) {
-      user = await User.create({
-        username: profile.displayName,
-        email: email,
-        googleId: profile.id,
-        avatar: profile.photos[0].value,
-        role: "student"
-      });
+      if (!user) {
+        user = await User.create({
+          username: name,
+          email,
+          avatar,
+          password: "google-auth",
+          role: "student",
+        });
+      }
+
+      return done(null, user);
     }
-
-    return done(null, user);
-  }
-));
+  )
+);
 
 passport.serializeUser((user, done) => done(null, user.id));
 passport.deserializeUser(async (id, done) => {
@@ -73,16 +85,29 @@ passport.deserializeUser(async (id, done) => {
 // ================== MULTER ==================
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const dir = "public/uploads";
-    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-    cb(null, dir);
+    if (!fs.existsSync("uploads")) fs.mkdirSync("uploads");
+    cb(null, "uploads");
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
-  }
+    const ext = path.extname(file.originalname);
+    cb(null, Date.now() + ext);
+  },
 });
 
-const upload = multer({ storage });
+const fileFilter = (req, file, cb) => {
+  const allowed = ["image/jpeg", "image/png", "image/jpg"];
+
+  if (allowed.includes(file.mimetype)) {
+    cb(null, true);
+  } else {
+    cb(new Error("Only images allowed"));
+  }
+};
+
+const upload = multer({
+  storage,
+  fileFilter
+});
 
 // ================== GLOBAL USER ==================
 app.use(async (req, res, next) => {
@@ -98,6 +123,12 @@ app.use(async (req, res, next) => {
 // ================== MIDDLEWARE ==================
 function isAuthenticated(req, res, next) {
   if (!req.session.userId) return res.redirect("/login");
+  next();
+}
+
+function isAdmin(req, res, next) {
+  if (!res.locals.user || res.locals.user.role !== "admin")
+    return res.send("Access Denied");
   next();
 }
 
@@ -122,7 +153,7 @@ app.get("/auth/google",
 app.get("/auth/google/callback",
   passport.authenticate("google", { failureRedirect: "/login" }),
   (req, res) => {
-    req.session.userId = req.user._id;
+    req.session.userId = req.user._id; // unify session
     res.redirect("/profile");
   }
 );
@@ -132,16 +163,22 @@ app.get("/login", (req, res) => res.render("login"));
 app.get("/register", (req, res) => res.render("register"));
 
 app.post("/register", async (req, res) => {
-  const { username, password } = req.body;
+  const { username, password, role, key } = req.body;
 
   const existing = await User.findOne({ username });
   if (existing) return res.send("Username exists");
+
+  let assignedRole = "student";
+  if (role === "admin" && key === ADMIN_KEY) assignedRole = "admin";
+  else if (role === "professor" && key === PROFESSOR_KEY)
+    assignedRole = "professor";
 
   const hashed = await bcrypt.hash(password, 10);
 
   await User.create({
     username,
-    password: hashed
+    password: hashed,
+    role: assignedRole,
   });
 
   res.redirect("/login");
@@ -156,7 +193,7 @@ app.post("/login", async (req, res) => {
   const valid = await bcrypt.compare(password, user.password);
   if (!valid) return res.send("Invalid credentials");
 
-  req.session.userId = user._id;
+  req.session.userId = user._id; // unified auth
   res.redirect("/profile");
 });
 
@@ -173,17 +210,19 @@ app.get("/profile", isAuthenticated, async (req, res) => {
     uploadedBy: req.session.userId
   });
 
-  res.render("profile", { user, papers });
+  res.render("profile", {
+    user,
+    papers
+  });
 });
 
-// UPLOAD PAPER
+// UPLOAD
 app.post("/upload",
   isAuthenticated,
   canUpload,
   upload.single("file"),
   async (req, res) => {
-
-    if (!req.file) return res.send("No file");
+    if (!req.file) return res.send("No file uploaded");
 
     const { title, subject, examType, year } = req.body;
 
@@ -194,30 +233,8 @@ app.post("/upload",
       year,
       filename: req.file.filename,
       uploadedBy: req.session.userId,
-      status: "approved"
-    });
-
-    // 🔥 update user stats
-    await User.findByIdAndUpdate(req.session.userId, {
-      $inc: { uploadsCount: 1 }
-    });
-
-    res.redirect("/profile");
-  }
-);
-
-app.get("/upload", isAuthenticated, (req, res) => {
-  res.render("upload");
-});
-
-// UPLOAD AVATAR
-app.post("/upload-avatar",
-  isAuthenticated,
-  upload.single("avatar"),
-  async (req, res) => {
-
-    await User.findByIdAndUpdate(req.session.userId, {
-      avatar: "/uploads/" + req.file.filename
+      status: "approved",
+      uploadedAt: new Date()
     });
 
     res.redirect("/profile");
@@ -227,9 +244,9 @@ app.post("/upload-avatar",
 // DOWNLOAD
 app.get("/download/:id", async (req, res) => {
   const file = await File.findById(req.params.id);
-  if (!file) return res.send("Not found");
+  if (!file) return res.send("File not found");
 
-  const filePath = path.join(__dirname, "public/uploads", file.filename);
+  const filePath = path.join(__dirname, "uploads", file.filename);
 
   await File.findByIdAndUpdate(req.params.id, {
     $inc: { downloads: 1 }
@@ -238,10 +255,80 @@ app.get("/download/:id", async (req, res) => {
   res.download(filePath);
 });
 
+// DELETE (ADMIN)
+app.get("/delete/:id", isAuthenticated, async (req, res) => {
+  const user = res.locals.user;
+
+  if (!user || user.role !== "admin") {
+    return res.send("Not allowed");
+  }
+
+  const file = await File.findById(req.params.id);
+  if (!file) return res.send("File not found");
+
+  const filePath = path.join(__dirname, "uploads", file.filename);
+  if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+
+  await File.findByIdAndDelete(req.params.id);
+
+  res.redirect("/explore");
+});
+
+app.get("/upload", isAuthenticated, (req, res) => {
+  res.render("upload");
+});
+
+app.post("/upload-avatar",
+  isAuthenticated,
+  upload.single("avatar"),
+  async (req, res) => {
+
+    try {
+      console.log("FILE:", req.file); // 🔥 DEBUG
+
+      if (!req.file) {
+        return res.send("No file uploaded");
+      }
+
+      const filePath = "/uploads/" + req.file.filename;
+
+      await User.findByIdAndUpdate(req.session.userId, {
+        avatar: filePath
+      });
+
+      res.redirect("/profile");
+
+    } catch (err) {
+      console.log("ERROR:", err);
+      res.send("Avatar upload failed");
+    }
+});
+
 // EXPLORE
 app.get("/explore", async (req, res) => {
-  const papers = await File.find({ status: "approved" });
-  res.render("explore", { papers, user: res.locals.user });
+  const { q, examType, year } = req.query;
+
+  const filter = { status: "approved" };
+
+  if (q) {
+    filter.$or = [
+      { title: { $regex: q, $options: "i" } },
+      { subject: { $regex: q, $options: "i" } },
+    ];
+  }
+
+  if (examType) filter.examType = examType;
+  if (year) filter.year = parseInt(year);
+
+  const papers = await File.find(filter).sort({ uploadedAt: -1 });
+
+  res.render("explore", {
+    papers,
+    user: res.locals.user,
+    q: q || "",
+    examType: examType || "",
+    year: year || "",
+  });
 });
 
 // ================== SERVER ==================

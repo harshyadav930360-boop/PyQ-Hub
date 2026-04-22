@@ -67,10 +67,21 @@
     </div>
 
     <!-- BUTTON -->
-    <a href="/upload" 
-   class="block mt-6 bg-blue-600 text-white text-center py-2 rounded">
-   Upload Paper
-</a>
+    <% if (user.role === "admin" || user.role === "professor") { %>
+
+      <a href="/upload"
+         class="block mt-6 bg-blue-600 text-white text-center py-2 rounded">
+         Upload Paper
+      </a>
+    
+    <% } else { %>
+    
+      <button onclick="alert('Students are not allowed to upload papers')"
+         class="block mt-6 bg-gray-400 text-white text-center py-2 rounded w-full">
+         Upload Paper
+      </button>
+    
+    <% } %>
 
   </div>
 
