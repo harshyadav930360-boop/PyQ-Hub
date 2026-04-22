@@ -73,7 +73,14 @@
          class="block mt-6 bg-blue-600 text-white text-center py-2 rounded">
          Upload Paper
       </a>
-    
+
+      <% if (user.role === "admin") { %>
+        <a href="/admin" 
+           class="block mt-3 bg-red-600 text-white text-center py-2 rounded hover:bg-red-700 transition">
+           Admin Dashboard
+        </a>
+      <% } %>
+
     <% } else { %>
     
       <button onclick="alert('Students are not allowed to upload papers')"
@@ -142,7 +149,7 @@
   </div>
 
 </div>
-
+</div>
 <%- include("partials/footer") %>
 
 </body>

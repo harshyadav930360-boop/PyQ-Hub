@@ -94,9 +94,9 @@ const storage = multer.diskStorage({
   },
 });
 
-const fileFilter = (req, file, cb) => {
+// ✅ IMAGE FILTER (for avatar)
+const imageFilter = (req, file, cb) => {
   const allowed = ["image/jpeg", "image/png", "image/jpg"];
-
   if (allowed.includes(file.mimetype)) {
     cb(null, true);
   } else {
@@ -104,9 +104,23 @@ const fileFilter = (req, file, cb) => {
   }
 };
 
-const upload = multer({
+// ✅ PDF FILTER (for papers)
+const pdfFilter = (req, file, cb) => {
+  if (file.mimetype === "application/pdf") {
+    cb(null, true);
+  } else {
+    cb(new Error("Only PDF files allowed"));
+  }
+};
+
+const uploadImage = multer({
   storage,
-  fileFilter
+  fileFilter: imageFilter
+});
+
+const uploadPDF = multer({
+  storage,
+  fileFilter: pdfFilter
 });
 
 // ================== GLOBAL USER ==================
@@ -220,7 +234,7 @@ app.get("/profile", isAuthenticated, async (req, res) => {
 app.post("/upload",
   isAuthenticated,
   canUpload,
-  upload.single("file"),
+  uploadPDF.single("file"),
   async (req, res) => {
     if (!req.file) return res.send("No file uploaded");
 
@@ -233,13 +247,65 @@ app.post("/upload",
       year,
       filename: req.file.filename,
       uploadedBy: req.session.userId,
-      status: "approved",
+      status: res.locals.user.role === "admin" ? "approved" : "pending",
       uploadedAt: new Date()
     });
 
     res.redirect("/profile");
   }
 );
+
+app.get("/admin", isAuthenticated, isAdmin, async (req, res) => {
+
+  const files = await File.find().sort({ uploadedAt: -1 });
+
+  const total = files.length;
+  const pending = files.filter(f => f.status === "pending").length;
+  const approved = files.filter(f => f.status === "approved").length;
+
+  res.render("admin", {
+    files,
+    total,
+    pending,
+    approved
+  });
+});
+
+// APPROVE (ADMIN)
+app.post("/admin/approve/:id", isAuthenticated, isAdmin, async (req, res) => {
+
+  await File.findByIdAndUpdate(req.params.id, {
+    status: "approved"
+  });
+
+  res.redirect("/admin");
+});
+
+// DELETE (ADMIN PANEL)
+app.post("/admin/delete/:id", isAuthenticated, isAdmin, async (req, res) => {
+
+  const file = await File.findById(req.params.id);
+  if (!file) return res.send("File not found");
+
+  const filePath = path.join(__dirname, "uploads", file.filename);
+
+  if (fs.existsSync(filePath)) {
+    fs.unlinkSync(filePath);
+  }
+
+  await File.findByIdAndDelete(req.params.id);
+
+  res.redirect("/admin");
+});
+
+app.get("/approve/:id", isAuthenticated, isAdmin, async (req, res) => {
+
+  await File.findByIdAndUpdate(req.params.id, {
+    status: "approved"
+  });
+
+  res.redirect("/admin");
+});
 
 // DOWNLOAD
 app.get("/download/:id", async (req, res) => {
@@ -280,7 +346,7 @@ app.get("/upload", isAuthenticated, (req, res) => {
 
 app.post("/upload-avatar",
   isAuthenticated,
-  upload.single("avatar"),
+  uploadImage.single("avatar"),
   async (req, res) => {
 
     try {

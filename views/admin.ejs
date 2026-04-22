@@ -1,76 +1,118 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Admin Dashboard</title>
+  <title>Admin Dashboard | PYQ Hub</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Your CSS -->
   <link rel="stylesheet" href="/css/style.css">
 </head>
-<body>
+
+<body class="bg-gray-100">
 
 <%- include("partials/navbar") %>
 
-<div class="admin-container">
-
-  <h1 style="text-align:center; margin-bottom:20px;">
+<!-- HEADER -->
+<section class="text-center mt-10">
+  <h1 class="text-4xl font-bold text-red-600">
     Admin Dashboard
   </h1>
+  <p class="text-gray-500 mt-2">
+    Manage and approve uploaded papers
+  </p>
+</section>
 
-  <!-- Stats -->
-  <div class="stats-grid">
-    <div class="stat-card">
-      <h2><%= total %></h2>
-      <p>Total Papers</p>
-    </div>
+<!-- STATS -->
+<div class="max-w-5xl mx-auto mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
 
-    <div class="stat-card">
-      <h2><%= pending %></h2>
-      <p>Pending Approval</p>
-    </div>
-
-    <div class="stat-card">
-      <h2><%= approved %></h2>
-      <p>Approved Papers</p>
-    </div>
+  <div class="bg-white p-6 rounded-xl shadow text-center">
+    <h2 class="text-2xl font-bold text-blue-600"><%= total %></h2>
+    <p class="text-gray-500 text-sm">Total Papers</p>
   </div>
 
-  <!-- Papers -->
-  <div class="explore-grid">
+  <div class="bg-white p-6 rounded-xl shadow text-center">
+    <h2 class="text-2xl font-bold text-yellow-500"><%= pending %></h2>
+    <p class="text-gray-500 text-sm">Pending Approval</p>
+  </div>
 
-    <% files.forEach(file => { %>
-
-      <div class="explore-card">
-
-        <h3><%= file.title %></h3>
-
-        <p><strong>Subject:</strong> <%= file.subject %></p>
-        <p><strong>Year:</strong> <%= file.year %></p>
-
-        <!-- STATUS BADGE -->
-        <p>
-          <% if (file.status === "pending") { %>
-            <span class="badge badge-pending">Pending</span>
-          <% } else { %>
-            <span class="badge badge-approved">Approved</span>
-          <% } %>
-        </p>
-
-        <!-- ACTIONS -->
-        <% if (file.status === "pending") { %>
-          <form action="/admin/approve/<%= file._id %>" method="POST">
-            <button class="btn btn-primary w-full">Approve</button>
-          </form>
-        <% } %>
-
-        <form action="/admin/delete/<%= file._id %>" method="POST">
-          <button class="btn btn-danger w-full">Delete</button>
-        </form>
-
-      </div>
-
-    <% }) %>
-
+  <div class="bg-white p-6 rounded-xl shadow text-center">
+    <h2 class="text-2xl font-bold text-green-600"><%= approved %></h2>
+    <p class="text-gray-500 text-sm">Approved Papers</p>
   </div>
 
 </div>
+
+<!-- PAPERS GRID -->
+<div class="max-w-6xl mx-auto mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+  <% if(files.length === 0){ %>
+
+    <div class="col-span-3 text-center text-gray-500">
+      No papers found 📂
+    </div>
+
+  <% } %>
+
+  <% files.forEach(file => { %>
+
+    <!-- ✅ SINGLE CARD START -->
+    <div class="bg-white p-5 rounded-xl shadow hover:shadow-lg transition">
+
+      <h3 class="font-semibold text-lg"><%= file.title %></h3>
+      <p class="text-sm text-gray-500"><%= file.subject %></p>
+
+      <div class="mt-2 text-xs text-gray-400 flex justify-between">
+        <span><%= file.examType %></span>
+        <span><%= file.year %></span>
+      </div>
+
+      <!-- STATUS -->
+      <div class="mt-3">
+        <% if (file.status === "pending") { %>
+          <span class="text-yellow-600 text-xs">Pending</span>
+        <% } else { %>
+          <span class="text-green-600 text-xs">Approved</span>
+        <% } %>
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="mt-4 flex justify-between text-sm">
+
+        <a href="/uploads/<%= file.filename %>" target="_blank"
+           class="text-green-600 hover:underline">
+          View
+        </a>
+
+        <div class="flex gap-3">
+
+          <% if (file.status === "pending") { %>
+            <form action="/admin/approve/<%= file._id %>" method="POST">
+              <button class="text-blue-600 hover:underline">
+                Approve
+              </button>
+            </form>
+          <% } %>
+
+          <form action="/admin/delete/<%= file._id %>" method="POST">
+            <button class="text-red-600 hover:underline">
+              Delete
+            </button>
+          </form>
+
+        </div>
+
+      </div>
+
+    </div>
+    <!-- ✅ SINGLE CARD END -->
+
+  <% }) %>
+
+</div>
+
+<%- include("partials/footer") %>
 
 </body>
 </html>
