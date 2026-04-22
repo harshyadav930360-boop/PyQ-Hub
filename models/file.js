@@ -33,7 +33,7 @@ const fileSchema = new mongoose.Schema({
     required: true
   },
 
-  // 🔥 NEW (for future features)
+  
   downloads: {
     type: Number,
     default: 0
@@ -47,7 +47,7 @@ const fileSchema = new mongoose.Schema({
   status: {
     type: String,
     enum: ["pending", "approved"],
-    default: "approved"   // change to "pending" if you want admin approval
+    default: "approved"   
   },
 
   uploadedAt: {

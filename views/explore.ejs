@@ -5,10 +5,10 @@
   <meta charset="UTF-8">
   <title>Explore | PYQ Hub</title>
   <link rel="icon" href="/images/logo2.png" type="image/png">
-  <!-- Tailwind for layout -->
+  
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Your CSS -->
+  
   <link rel="stylesheet" href="/css/style.css">
 </head>
 
@@ -16,7 +16,7 @@
 
 <%- include("partials/navbar") %>
 
-<!-- HEADER -->
+
 <section class="text-center mt-10">
   <h1 class="text-4xl font-bold text-blue-600">
     Explore Question Papers
@@ -26,17 +26,17 @@
   </p>
 </section>
 
-<!-- SEARCH BAR -->
+
 <form action="/explore" method="GET" 
       class="max-w-5xl mx-auto mt-8 flex flex-wrap items-center justify-center gap-3">
 
-  <!-- SEARCH INPUT -->
+  
   <input type="text" name="q"
     placeholder="Search by title or subject"
     value="<%= typeof q !== 'undefined' ? q : '' %>"
     class="px-4 py-2 border rounded-lg w-64">
 
-  <!-- EXAM FILTER -->
+  
   <select name="examType" class="px-4 py-2 border rounded-lg">
     <option value="">All Exams</option>
     <option value="JEE">JEE</option>
@@ -46,11 +46,11 @@
     <option value="Semester">Semester Exam</option>
   </select>
 
-  <!-- YEAR -->
+  
   <input type="number" name="year" placeholder="Year"
     class="px-4 py-2 border rounded-lg w-32">
 
-  <!-- BUTTON -->
+  
   <button type="submit"
     class="bg-blue-600 text-white px-5 py-2 rounded-lg hover:bg-blue-700">
     Search
@@ -58,7 +58,7 @@
 
 </form>
 
-<!-- RESULTS -->
+
 <div class="max-w-6xl mx-auto mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
   <% if(papers.length === 0){ %>

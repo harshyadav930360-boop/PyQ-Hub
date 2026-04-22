@@ -19,19 +19,16 @@ const PROFESSOR_KEY = "PROF456";
 
 const app = express();
 
-// ================== CONFIG ==================
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
 app.use("/uploads", express.static("uploads"));
 
-// ================== DB ==================
 mongoose
   .connect("mongodb://127.0.0.1:27017/pyqhub")
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.error(err));
 
-// ================== SESSION ==================
 app.use(
   session({
     secret: "supersecretkey",
@@ -43,7 +40,6 @@ app.use(
   })
 );
 
-// ================== PASSPORT ==================
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -82,7 +78,6 @@ passport.deserializeUser(async (id, done) => {
   done(null, user);
 });
 
-// ================== MULTER ==================
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     if (!fs.existsSync("uploads")) fs.mkdirSync("uploads");
@@ -94,7 +89,6 @@ const storage = multer.diskStorage({
   },
 });
 
-// ✅ IMAGE FILTER (for avatar)
 const imageFilter = (req, file, cb) => {
   const allowed = ["image/jpeg", "image/png", "image/jpg"];
   if (allowed.includes(file.mimetype)) {
@@ -104,7 +98,7 @@ const imageFilter = (req, file, cb) => {
   }
 };
 
-// ✅ PDF FILTER (for papers)
+
 const pdfFilter = (req, file, cb) => {
   if (file.mimetype === "application/pdf") {
     cb(null, true);
@@ -123,7 +117,7 @@ const uploadPDF = multer({
   fileFilter: pdfFilter
 });
 
-// ================== GLOBAL USER ==================
+
 app.use(async (req, res, next) => {
   res.locals.user = null;
 
@@ -134,7 +128,7 @@ app.use(async (req, res, next) => {
   next();
 });
 
-// ================== MIDDLEWARE ==================
+
 function isAuthenticated(req, res, next) {
   if (!req.session.userId) return res.redirect("/login");
   next();
@@ -152,14 +146,12 @@ function canUpload(req, res, next) {
   return res.redirect("/profile");
 }
 
-// ================== ROUTES ==================
 
-// HOME
 app.get("/", (req, res) => {
   res.render("index", { user: res.locals.user });
 });
 
-// GOOGLE AUTH
+
 app.get("/auth/google",
   passport.authenticate("google", { scope: ["profile", "email"] })
 );
@@ -167,12 +159,12 @@ app.get("/auth/google",
 app.get("/auth/google/callback",
   passport.authenticate("google", { failureRedirect: "/login" }),
   (req, res) => {
-    req.session.userId = req.user._id; // unify session
+    req.session.userId = req.user._id; 
     res.redirect("/profile");
   }
 );
 
-// AUTH
+
 app.get("/login", (req, res) => res.render("login"));
 app.get("/register", (req, res) => res.render("register"));
 
@@ -207,16 +199,16 @@ app.post("/login", async (req, res) => {
   const valid = await bcrypt.compare(password, user.password);
   if (!valid) return res.send("Invalid credentials");
 
-  req.session.userId = user._id; // unified auth
+  req.session.userId = user._id; 
   res.redirect("/profile");
 });
 
-// LOGOUT
+
 app.get("/logout", (req, res) => {
   req.session.destroy(() => res.redirect("/"));
 });
 
-// PROFILE
+
 app.get("/profile", isAuthenticated, async (req, res) => {
   const user = await User.findById(req.session.userId);
 
@@ -230,7 +222,7 @@ app.get("/profile", isAuthenticated, async (req, res) => {
   });
 });
 
-// UPLOAD
+
 app.post("/upload",
   isAuthenticated,
   canUpload,
@@ -271,7 +263,7 @@ app.get("/admin", isAuthenticated, isAdmin, async (req, res) => {
   });
 });
 
-// APPROVE (ADMIN)
+
 app.post("/admin/approve/:id", isAuthenticated, isAdmin, async (req, res) => {
 
   await File.findByIdAndUpdate(req.params.id, {
@@ -281,7 +273,7 @@ app.post("/admin/approve/:id", isAuthenticated, isAdmin, async (req, res) => {
   res.redirect("/admin");
 });
 
-// DELETE (ADMIN PANEL)
+
 app.post("/admin/delete/:id", isAuthenticated, isAdmin, async (req, res) => {
 
   const file = await File.findById(req.params.id);
@@ -307,7 +299,7 @@ app.get("/approve/:id", isAuthenticated, isAdmin, async (req, res) => {
   res.redirect("/admin");
 });
 
-// DOWNLOAD
+
 app.get("/download/:id", async (req, res) => {
   const file = await File.findById(req.params.id);
   if (!file) return res.send("File not found");
@@ -321,7 +313,7 @@ app.get("/download/:id", async (req, res) => {
   res.download(filePath);
 });
 
-// DELETE (ADMIN)
+
 app.get("/delete/:id", isAuthenticated, async (req, res) => {
   const user = res.locals.user;
 
@@ -350,8 +342,7 @@ app.post("/upload-avatar",
   async (req, res) => {
 
     try {
-      console.log("FILE:", req.file); // 🔥 DEBUG
-
+      console.log("FILE:", req.file); 
       if (!req.file) {
         return res.send("No file uploaded");
       }
@@ -370,7 +361,7 @@ app.post("/upload-avatar",
     }
 });
 
-// EXPLORE
+
 app.get("/explore", async (req, res) => {
   const { q, examType, year } = req.query;
 
@@ -397,7 +388,7 @@ app.get("/explore", async (req, res) => {
   });
 });
 
-// ================== SERVER ==================
+
 app.listen(3000, () =>
   console.log("Server running at http://localhost:3000")
 );

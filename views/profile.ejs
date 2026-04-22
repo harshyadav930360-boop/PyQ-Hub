@@ -15,16 +15,16 @@
 <div class="flex-1 p-6">
   <div class="flex gap-8 items-start">
 
-  <!-- 🔥 LEFT SIDEBAR -->
+  
   <div class="w-80 bg-white rounded-2xl p-6 shadow-md">
 
-    <!-- AVATAR WITH UPLOAD -->
+    
     <div class="relative w-28 h-28 mx-auto group">
 
       <img src="<%= user.avatar || '/images/default.png' %>"
            class="w-28 h-28 rounded-full object-cover border-4 border-blue-500 shadow">
 
-      <!-- OVERLAY -->
+      
       <form action="/upload-avatar" method="POST" enctype="multipart/form-data"
             class="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center 
                    opacity-0 group-hover:opacity-100 transition">
@@ -37,7 +37,7 @@
       </form>
     </div>
 
-    <!-- USER INFO -->
+    
     <div class="text-center mt-4">
       <h2 class="text-xl font-bold"><%= user.username %></h2>
 
@@ -51,7 +51,7 @@
       <p class="text-gray-500 text-sm"><%= user.email || "No email" %></p>
     </div>
 
-    <!-- STATS -->
+   
     <div class="mt-6 grid grid-cols-2 gap-4">
       <div class="bg-gray-100 p-4 rounded-xl text-center">
         <h2 class="text-blue-600 font-bold text-lg"><%= papers.length %></h2>
@@ -66,7 +66,7 @@
       </div>
     </div>
 
-    <!-- BUTTON -->
+   
     <% if (user.role === "admin" || user.role === "professor") { %>
 
       <a href="/upload"
@@ -92,16 +92,16 @@
 
   </div>
 
-  <!-- 🔥 RIGHT SIDE -->
+  
   <div class="flex-1">
 
-    <!-- HEADER -->
+    
     <div class="mb-6">
       <h1 class="text-2xl font-bold">My Uploaded Papers</h1>
       <p class="text-gray-500 text-sm">Manage your uploaded resources</p>
     </div>
 
-    <!-- GRID -->
+    
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
 
       <% if(papers.length === 0){ %>
@@ -124,7 +124,7 @@
             <span><%= paper.year %></span>
           </div>
 
-          <!-- ACTIONS -->
+         
           <div class="mt-4 flex justify-between items-center">
 
             <a href="/uploads/<%= paper.filename %>"

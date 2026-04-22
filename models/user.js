@@ -2,11 +2,11 @@ const mongoose = require("mongoose");
 
 const userSchema = new mongoose.Schema(
   {
-    // 🔐 AUTH
+    
     email: {
       type: String,
       unique: true,
-      sparse: true, // allows null for normal login users
+      sparse: true, 
     },
 
     username: {
@@ -16,16 +16,16 @@ const userSchema = new mongoose.Schema(
 
     password: {
       type: String,
-      default: null, // null for Google users
+      default: null, 
     },
 
-    // 🧠 GOOGLE AUTH
+    
     googleId: {
       type: String,
       default: null,
     },
 
-    // 🖼️ PROFILE
+   
     avatar: {
       type: String,
       default: "/images/default.png",
@@ -41,14 +41,14 @@ const userSchema = new mongoose.Schema(
       default: "",
     },
 
-    // 🎭 ROLE SYSTEM
+    
     role: {
       type: String,
       enum: ["admin", "professor", "student"],
       default: "student",
     },
 
-    // 📊 STATS (for dashboard)
+    
     uploadsCount: {
       type: Number,
       default: 0,

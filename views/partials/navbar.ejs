@@ -1,12 +1,12 @@
 <header class="navbar">
   <div class="container nav-container">
 
-    <!-- Logo -->
+    
     <a href="/" class="brand logo-brand">
       <img src="/images/logo2.png" alt="PYQ Hub Logo" class="logo-img">
     </a>
 
-    <!-- Navigation -->
+    
     <nav class="nav-links" aria-label="Main navigation">
 
       <a class="nav-item" href="/">Home</a>
@@ -14,7 +14,7 @@
 
       <% if (user) { %>
 
-        <!-- Profile -->
+       
         <a class="nav-item" href="/profile">Profile</a>
 
         <!-- Admin Panel (ONLY ADMIN) -->
@@ -22,12 +22,12 @@
           <a class="nav-item" href="/admin">Admin</a>
         <% } %> -->
 
-        <!-- Logout -->
+        
         <a class="btn btn-outline" href="/logout">Logout</a>
 
       <% } else { %>
 
-        <!-- Guest -->
+        
         <a class="nav-item" href="/login">Login</a>
         <a class="btn btn-primary" href="/register">Sign Up</a>
 

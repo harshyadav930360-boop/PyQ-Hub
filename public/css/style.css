@@ -1,6 +1,4 @@
-/* ==============================
-   GLOBAL RESET & BASE STYLES
-============================== */
+
 * {
     margin: 0;
     padding: 0;
@@ -25,13 +23,11 @@
     padding: 0 20px;
   }
   
-  /* Utility classes */
+  
   .text-center { text-align: center; }
   .w-full { width: 100%; }
   
-  /* ==============================
-     NAVBAR
-  ============================== */
+  
   header.navbar {
     position: sticky;
     top: 0;
@@ -1018,7 +1014,7 @@
 .logo-img:hover {
   transform: scale(1.05);
 }
-/* ===== ADMIN DASHBOARD ===== */
+
 .admin-container {
   max-width: 1200px;
   margin: 30px auto;

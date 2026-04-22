@@ -4,10 +4,10 @@
   <link rel="icon" href="/images/logo2.png" type="image/png">
   <title>Admin Dashboard | PYQ Hub</title>
 
-  <!-- Tailwind -->
+  
   <script src="https://cdn.tailwindcss.com"></script>
 
-  <!-- Your CSS -->
+  
   <link rel="stylesheet" href="/css/style.css">
 </head>
 
@@ -15,7 +15,7 @@
 
 <%- include("partials/navbar") %>
 
-<!-- HEADER -->
+
 <section class="text-center mt-10">
   <h1 class="text-4xl font-bold text-red-600">
     Admin Dashboard
@@ -25,7 +25,7 @@
   </p>
 </section>
 
-<!-- STATS -->
+
 <div class="max-w-5xl mx-auto mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
 
   <div class="bg-white p-6 rounded-xl shadow text-center">
@@ -45,7 +45,7 @@
 
 </div>
 
-<!-- PAPERS GRID -->
+
 <div class="max-w-6xl mx-auto mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
   <% if(files.length === 0){ %>
@@ -58,7 +58,7 @@
 
   <% files.forEach(file => { %>
 
-    <!-- ✅ SINGLE CARD START -->
+   
     <div class="bg-white p-5 rounded-xl shadow hover:shadow-lg transition">
 
       <h3 class="font-semibold text-lg"><%= file.title %></h3>
@@ -69,7 +69,7 @@
         <span><%= file.year %></span>
       </div>
 
-      <!-- STATUS -->
+      
       <div class="mt-3">
         <% if (file.status === "pending") { %>
           <span class="text-yellow-600 text-xs">Pending</span>
@@ -78,7 +78,7 @@
         <% } %>
       </div>
 
-      <!-- ACTIONS -->
+      
       <div class="mt-4 flex justify-between text-sm">
 
         <a href="/uploads/<%= file.filename %>" target="_blank"
@@ -107,7 +107,7 @@
       </div>
 
     </div>
-    <!-- ✅ SINGLE CARD END -->
+    
 
   <% }) %>
 
